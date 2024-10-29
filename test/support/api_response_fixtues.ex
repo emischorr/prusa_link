@@ -117,4 +117,20 @@ defmodule Test.Support.ApiResponseFixtures do
       "type": "FOLDER"
     }>
   end
+
+  def upload_response do
+    ~s<{
+      "display_name": "atlc.bgcode",
+      "m_timestamp": 1730217507,
+      "name": "ATLC~1.BGC",
+      "refs": {
+        "download": "/usb/ATLC~1.BGC",
+        "icon": "/thumb/s/usb/ATLC~1.BGC",
+        "thumbnail": "/thumb/l/usb/ATLC~1.BGC"
+      },
+      "ro": false,
+      "size": 437662,
+      "type": "PRINT_FILE"
+    }>
+  end
 end

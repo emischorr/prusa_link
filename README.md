@@ -10,6 +10,7 @@ Currently supports:
 - stop, pause, continue a job
 - retrieve storage info
 - file and directory listing
+- file upload (since v0.1.1)
 
 ## Usage
 
@@ -54,7 +55,7 @@ The package can be installed by adding `prusa_link` to your list of dependencies
 ```elixir
 def deps do
   [
-    {:prusa_link, "~> 0.1.0"}
+    {:prusa_link, "~> 0.1.1"}
   ]
 end
 ```

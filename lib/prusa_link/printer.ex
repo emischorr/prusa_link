@@ -34,7 +34,7 @@ defmodule PrusaLink.Printer do
           {Tesla.Middleware.BaseUrl, "http://#{host_or_ip}"},
           Tesla.Middleware.DecodeJson,
           {Tesla.Middleware.Headers, [{"X-Api-Key", password}]},
-          {Tesla.Middleware.Timeout, timeout: 2_000}
+          {Tesla.Middleware.Timeout, timeout: 5_000}
           # {Tesla.Middleware.BasicAuth, %{username: user, password: password}}
         ],
         Tesla.Adapter.Mint

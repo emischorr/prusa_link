@@ -12,6 +12,35 @@ defmodule PrusaLink.Api do
 
   @doc """
   Retrieves current status from the printer.
+
+  ## Examples
+
+      iex> PrusaLink.status(printer)
+      {:ok, %{
+        job: %{
+          id: 297,
+          progress: 91.00,
+          time_remaining: 600,
+          time_printing: 7718
+        },
+        storage: %{
+          path: "/usb/",
+          name: "usb",
+          read_only: false
+        },
+        printer: %{
+          state: "PRINTING",
+          temp_bed: 60.0,
+          target_bed: 60.0,
+          temp_nozzle: 209.9,
+          target_nozzle: 210.0,
+          axis_z: 2.4,
+          flow: 100,
+          speed: 100,
+          fan_hotend: 3099,
+          fan_print: 5964
+        }
+      }}
   """
   @spec status(%PrusaLink.Printer{}) ::
           {:ok, any()}
@@ -29,23 +58,84 @@ defmodule PrusaLink.Api do
              :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
   def job(%Printer{} = printer), do: call(printer, :get, "/job") |> handle_resp()
 
+  @doc """
+  Stops a currently running job.
+  Can not be resumed.
+  """
+  @spec job_stop(%PrusaLink.Printer{}, job_id :: integer()) ::
+          {:ok, any()}
+          | {:error,
+             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
   def job_stop(%Printer{} = printer, job_id),
     do: call(printer, :delete, "/job/#{job_id}") |> handle_resp()
 
+  @doc """
+  Pauses the execution of a currently running job.
+  Can be resumed later.
+  """
+  @spec job_pause(%PrusaLink.Printer{}, job_id :: integer()) ::
+          {:ok, any()}
+          | {:error,
+             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
   def job_pause(%Printer{} = printer, job_id),
     do: call(printer, :put, "/job/#{job_id}/pause") |> handle_resp()
 
+  @doc """
+  Resumes a job that was paused before.
+  """
+  @spec job_resume(%PrusaLink.Printer{}, job_id :: integer()) ::
+          {:ok, any()}
+          | {:error,
+             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
   def job_resume(%Printer{} = printer, job_id),
     do: call(printer, :put, "/job/#{job_id}/resume") |> handle_resp()
 
+  @doc """
+  Returns storage information.
+  """
+  @spec storage(%PrusaLink.Printer{}) ::
+          {:ok, any()}
+          | {:error,
+             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
   def storage(%Printer{} = printer), do: call(printer, :get, "/storage") |> handle_resp()
 
+  @doc """
+  Retuns a file listing for the given storage and path.
+  """
+  @spec files(%PrusaLink.Printer{}, storage :: binary(), path :: binary()) ::
+          {:ok, any()}
+          | {:error,
+             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
   def files(%Printer{} = printer, storage, path),
     do: call(printer, :get, "/files/#{storage}/#{path}") |> handle_resp()
 
+  @doc """
+  Upload a file to the given printer storage.
+  The given path should include the target filename of the file on the printer and not just the folder.
+
+  NOTE:
+  Does not override existing file and does not start printing automatically after upload.
+
+  ## Examples
+
+      iex> PrusaLink.Api.upload(printer, "usb", "/model.bgcode", file_content)
+      {:ok, []}
+  """
+  @doc since: "0.1.1"
+  @spec upload(%PrusaLink.Printer{}, storage :: binary(), path :: binary(), content :: any()) ::
+          {:ok, any()}
+          | {:error,
+             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
   def upload(%Printer{} = printer, storage, path, content),
     do: call(printer, :put, "/files/#{storage}/#{path}", content) |> handle_resp()
 
+  @doc """
+  Starts a print job with the given file.
+  """
+  @spec print(%PrusaLink.Printer{}, storage :: binary(), path :: binary()) ::
+          {:ok, any()}
+          | {:error,
+             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
   def print(%Printer{} = printer, storage, path),
     do: call(printer, :post, "/files/#{storage}/#{path}") |> handle_resp()
 
@@ -72,7 +162,11 @@ defmodule PrusaLink.Api do
   defp call(%Printer{client: client} = printer, :put, endpoint, content) do
     request(client,
       method: :put,
-      headers: [{"Overwrite", "?0"}, {"Print-After-Upload", "?0"}],
+      headers: [
+        {"Overwrite", "?0"},
+        {"Print-After-Upload", "?0"},
+        {"Content-Type", "application/octet-stream"}
+      ],
       url: "/api/v#{printer.api_version}#{endpoint}",
       body: content
     )
