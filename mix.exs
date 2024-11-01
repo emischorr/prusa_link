@@ -4,7 +4,7 @@ defmodule PrusaLink.MixProject do
   def project do
     [
       app: :prusa_link,
-      version: "0.2.1",
+      version: "0.2.2",
       name: "PrusaLink",
       description: "A wrapper for the local PrusaLink printer API",
       source_url: "https://github.com/emischorr/prusa_link",

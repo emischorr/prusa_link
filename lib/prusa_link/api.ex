@@ -200,14 +200,13 @@ defmodule PrusaLink.Api do
 
   defp handle_resp({:ok, %Tesla.Env{status: 401}}), do: {:error, :unauthorized}
 
-  defp handle_resp({:error, {:error, %{reason: :timeout}}}),
-    do: {:error, :timeout}
+  defp handle_resp({:error, :timeout}), do: {:error, :not_reachable}
 
-  defp handle_resp({:error, {:error, %Mint.TransportError{reason: reason}}})
+  defp handle_resp({:error, %Mint.TransportError{reason: reason}})
        when reason in [:ehostunreach, :ehostdown],
        do: {:error, :not_reachable}
 
-  defp handle_resp(error), do: {:error, error}
+  defp handle_resp(error), do: error
 
   defp call(%Printer{client: client} = printer, method, endpoint) do
     request(client, method: method, url: "/api/v#{printer.api_version}#{endpoint}")
