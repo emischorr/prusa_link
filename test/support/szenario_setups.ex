@@ -100,7 +100,7 @@ defmodule Test.Support.SzenarioSetups do
         fun: nil,
         pre: [
           {Tesla.Middleware.BaseUrl, :call, ["http://#{host}"]},
-          {Tesla.Middleware.DecodeJson, :call, [[]]},
+          {Tesla.Middleware.DecodeJson, :call, [[{:engine_opts, [keys: :atoms]}]]},
           {Tesla.Middleware.Headers, :call, [[{"X-Api-Key", "password"}]]},
           {Tesla.Middleware.Timeout, :call, [[timeout: 5000]]}
         ],
@@ -109,7 +109,7 @@ defmodule Test.Support.SzenarioSetups do
       },
       name: "prusa-mk4",
       api_version: 1,
-      capabilities: %{"upload-by-put" => true},
+      capabilities: %{"upload-by-put": true},
       nozzle: 0.4,
       mmu: false,
       serial: "1234567890"

@@ -60,7 +60,7 @@ defmodule PrusaLink.Api do
 
   @doc """
   Stops a currently running job.
-  Can not be resumed.
+  The job can not be resumed.
   """
   @spec job_stop(%PrusaLink.Printer{}, job_id :: integer()) ::
           {:ok, any()}
@@ -101,6 +101,7 @@ defmodule PrusaLink.Api do
 
   @doc """
   Retuns a file listing for the given storage and path.
+  To find out which storage options are connected to the printer see `PrusaLink.Api.storage/1`
   """
   @spec files(%PrusaLink.Printer{}, storage :: binary(), path :: binary()) ::
           {:ok, any()}
@@ -131,6 +132,11 @@ defmodule PrusaLink.Api do
 
   @doc """
   Starts a print job with the given file.
+
+  ## Examples
+
+      iex> PrusaLink.Api.print(printer, "usb", "/model.bgcode")
+      {:ok, []}
   """
   @spec print(%PrusaLink.Printer{}, storage :: binary(), path :: binary()) ::
           {:ok, any()}

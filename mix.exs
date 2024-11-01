@@ -4,7 +4,7 @@ defmodule PrusaLink.MixProject do
   def project do
     [
       app: :prusa_link,
-      version: "0.1.1",
+      version: "0.2.0",
       name: "PrusaLink",
       description: "A wrapper for the local PrusaLink printer API",
       source_url: "https://github.com/emischorr/prusa_link",
@@ -14,7 +14,6 @@ defmodule PrusaLink.MixProject do
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
-      source_url: "https://github.com/emischorr/prusa_link",
       docs: [
         # The main page in the docs
         main: "PrusaLink",
@@ -41,7 +40,6 @@ defmodule PrusaLink.MixProject do
       {:jason, ">= 1.4.0"},
       {:mint, "~> 1.6"},
       {:castore, "~> 1.0"},
-      {:mox, "~> 1.0", only: :test},
       {:bypass, "~> 2.1", only: :test},
       {:ex_doc, "~> 0.34", only: :dev, runtime: false}
     ]

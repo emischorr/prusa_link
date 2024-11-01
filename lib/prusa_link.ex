@@ -8,6 +8,7 @@ defmodule PrusaLink do
   alias PrusaLink.Api
 
   defdelegate printer(host_or_ip, pw), to: Printer, as: :new
+  defdelegate refresh(printer), to: Printer
   defdelegate specs(printer), to: Printer
   defdelegate status(printer), to: Api
   defdelegate job(printer), to: Api
