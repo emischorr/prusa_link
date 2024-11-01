@@ -45,7 +45,12 @@ defmodule PrusaLink.Api do
   @spec status(%PrusaLink.Printer{}) ::
           {:ok, any()}
           | {:error,
-             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
+             :not_found
+             | :timeout
+             | :not_reachable
+             | :unauthorized
+             | {:error, any()}
+             | {:ok, Tesla.Env.t()}}
   def status(%Printer{} = printer), do: call(printer, :get, "/status") |> handle_resp()
 
   @doc """
@@ -55,7 +60,12 @@ defmodule PrusaLink.Api do
   @spec job(%PrusaLink.Printer{}) ::
           {:ok, any()}
           | {:error,
-             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
+             :not_found
+             | :timeout
+             | :not_reachable
+             | :unauthorized
+             | {:error, any()}
+             | {:ok, Tesla.Env.t()}}
   def job(%Printer{} = printer), do: call(printer, :get, "/job") |> handle_resp()
 
   @doc """
@@ -65,7 +75,12 @@ defmodule PrusaLink.Api do
   @spec job_stop(%PrusaLink.Printer{}, job_id :: integer()) ::
           {:ok, any()}
           | {:error,
-             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
+             :not_found
+             | :timeout
+             | :not_reachable
+             | :unauthorized
+             | {:error, any()}
+             | {:ok, Tesla.Env.t()}}
   def job_stop(%Printer{} = printer, job_id),
     do: call(printer, :delete, "/job/#{job_id}") |> handle_resp()
 
@@ -76,7 +91,12 @@ defmodule PrusaLink.Api do
   @spec job_pause(%PrusaLink.Printer{}, job_id :: integer()) ::
           {:ok, any()}
           | {:error,
-             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
+             :not_found
+             | :timeout
+             | :not_reachable
+             | :unauthorized
+             | {:error, any()}
+             | {:ok, Tesla.Env.t()}}
   def job_pause(%Printer{} = printer, job_id),
     do: call(printer, :put, "/job/#{job_id}/pause") |> handle_resp()
 
@@ -86,7 +106,12 @@ defmodule PrusaLink.Api do
   @spec job_resume(%PrusaLink.Printer{}, job_id :: integer()) ::
           {:ok, any()}
           | {:error,
-             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
+             :not_found
+             | :timeout
+             | :not_reachable
+             | :unauthorized
+             | {:error, any()}
+             | {:ok, Tesla.Env.t()}}
   def job_resume(%Printer{} = printer, job_id),
     do: call(printer, :put, "/job/#{job_id}/resume") |> handle_resp()
 
@@ -96,7 +121,12 @@ defmodule PrusaLink.Api do
   @spec storage(%PrusaLink.Printer{}) ::
           {:ok, any()}
           | {:error,
-             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
+             :not_found
+             | :timeout
+             | :not_reachable
+             | :unauthorized
+             | {:error, any()}
+             | {:ok, Tesla.Env.t()}}
   def storage(%Printer{} = printer), do: call(printer, :get, "/storage") |> handle_resp()
 
   @doc """
@@ -106,7 +136,12 @@ defmodule PrusaLink.Api do
   @spec files(%PrusaLink.Printer{}, storage :: binary(), path :: binary()) ::
           {:ok, any()}
           | {:error,
-             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
+             :not_found
+             | :timeout
+             | :not_reachable
+             | :unauthorized
+             | {:error, any()}
+             | {:ok, Tesla.Env.t()}}
   def files(%Printer{} = printer, storage, path),
     do: call(printer, :get, "/files/#{storage}/#{path}") |> handle_resp()
 
@@ -126,7 +161,12 @@ defmodule PrusaLink.Api do
   @spec upload(%PrusaLink.Printer{}, storage :: binary(), path :: binary(), content :: any()) ::
           {:ok, any()}
           | {:error,
-             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
+             :not_found
+             | :timeout
+             | :not_reachable
+             | :unauthorized
+             | {:error, any()}
+             | {:ok, Tesla.Env.t()}}
   def upload(%Printer{} = printer, storage, path, content),
     do: call(printer, :put, "/files/#{storage}/#{path}", content) |> handle_resp()
 
@@ -141,7 +181,12 @@ defmodule PrusaLink.Api do
   @spec print(%PrusaLink.Printer{}, storage :: binary(), path :: binary()) ::
           {:ok, any()}
           | {:error,
-             :not_found | :timeout | :unauthorized | {:error, any()} | {:ok, Tesla.Env.t()}}
+             :not_found
+             | :timeout
+             | :not_reachable
+             | :unauthorized
+             | {:error, any()}
+             | {:ok, Tesla.Env.t()}}
   def print(%Printer{} = printer, storage, path),
     do: call(printer, :post, "/files/#{storage}/#{path}") |> handle_resp()
 
@@ -157,6 +202,10 @@ defmodule PrusaLink.Api do
 
   defp handle_resp({:error, {:error, %{reason: :timeout}}}),
     do: {:error, :timeout}
+
+  defp handle_resp({:error, {:error, %Mint.TransportError{reason: reason}}})
+       when reason in [:ehostunreach, :ehostdown],
+       do: {:error, :not_reachable}
 
   defp handle_resp(error), do: {:error, error}
 

@@ -95,7 +95,8 @@ defmodule PrusaLink.Printer do
       {:error, {:error, :timeout}} ->
         {:not_reachable, struct(__MODULE__, %{client: client, api_version: 1})}
 
-      {:error, {:error, %Mint.TransportError{reason: :ehostunreach}}} ->
+      {:error, {:error, %Mint.TransportError{reason: reason}}}
+      when reason in [:ehostunreach, :ehostdown] ->
         {:not_reachable, struct(__MODULE__, %{client: client, api_version: 1})}
 
       {:error, error} ->
